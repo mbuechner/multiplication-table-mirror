@@ -74,11 +74,12 @@
                 <label for="zahlenanordnung" class="form-label fw-bold mb-0">Zahlenanordnung</label>
                 <button class="btn btn-light text-dark border border-secondary-subtle rounded-circle help-trigger d-inline-flex align-items-center justify-content-center flex-shrink-0 p-0 fw-semibold"
                         type="button" data-bs-toggle="tooltip" aria-label="Hilfe zur Zahlenanordnung"
-                        title="„Wie im Mittelquadrat“ ist ein Vorschlag zum leichteren Nachschlagen. In jedem Block stehen die Vielfachen an den Positionen ihrer Faktoren im Mittelquadrat.">?</button>
+                        title="„Wie im Mittelquadrat“ ist ein Vorschlag zum leichteren Nachschlagen. In jedem Block stehen die Vielfachen an den Positionen ihrer Faktoren im Mittelquadrat. Beim Lo-Shu-Quadrat ergeben beide Diagonalen dieselbe Summe wie die Zeilen und Spalten.">?</button>
               </div>
               <select id="zahlenanordnung" class="form-select" aria-controls="mirror-table">
                 <option value="original">Historische Anordnung</option>
                 <option value="mittelquadrat">Wie im Mittelquadrat</option>
+                <option value="lo-shu">Lo-Shu-Quadrat</option>
               </select>
             </div>
             <details id="anleitung" name="lernhilfen" class="card rounded-4 p-3">
@@ -99,17 +100,30 @@
                     </h3>
                     <p id="magic-description" class="text-body-secondary mb-2">Rechts stehen die Summen der Zeilen, unten die Summen der Spalten.</p>
                     <div id="magic-scroll" class="table-responsive" role="region" aria-labelledby="magic-title" aria-describedby="magic-scroll-hint">
-                      <table id="magic-table" class="table table-sm table-bordered caption-top w-auto mx-auto mb-0 text-center align-middle fw-bold" aria-describedby="magic-description">
+                      <table id="magic-table" class="table table-sm table-bordered caption-top w-auto mx-auto mb-0 text-center align-middle fw-bold" aria-describedby="magic-description magic-diagonals">
                         <caption id="magic-caption" class="pb-1 text-center fw-semibold"></caption>
                       </table>
                     </div>
                     <p id="magic-scroll-hint" class="small mt-2 mb-0" hidden>Wische im Zauberquadrat seitlich oder nutze die Pfeiltasten.</p>
+                    <p id="magic-diagonals" class="small d-flex flex-wrap column-gap-2 mt-2 mb-0">
+                      Diagonalen
+                      <span class="text-nowrap">
+                        <span aria-hidden="true">↘&#xFE0E;</span>
+                        <span class="visually-hidden">von links oben nach rechts unten</span>
+                        <span id="magic-diagonal-descending"></span>
+                      </span>
+                      <span class="text-nowrap">
+                        <span aria-hidden="true">↙&#xFE0E;</span>
+                        <span class="visually-hidden">von rechts oben nach links unten</span>
+                        <span id="magic-diagonal-ascending"></span>
+                      </span>
+                    </p>
                   </div>
                 </section>
               </div>
-              <p id="spiegel-help" class="mt-3 mb-2">Die Zahl in der Mitte jedes Quadrats nennt die Malreihe. Am Rand stehen die Zehneraufgaben der äußeren Reihen.</p>
+              <p id="spiegel-help" class="mt-3 mb-2">Die rot hinterlegte Zahl zeigt in jedem äußeren Block die Malreihe. Das Mittelquadrat ist die 1er-Reihe. Am Rand stehen die Zehneraufgaben der äußeren Reihen.</p>
               <ol class="mb-0 ps-4">
-                <li>Tippe in der Maltafel auf eine Zahl. <span class="factor-token factor-block">Gold</span> zeigt den Faktor des gewählten Blocks, <span class="factor-token factor-partner">Blau</span> den anderen Faktor. Die Farben verbinden die Blockmitten mit denselben Zahlen im Mittelquadrat.</li>
+                <li>Tippe in der Maltafel auf eine Zahl. <span class="factor-token factor-block">Gold</span> zeigt den Faktor des gewählten Blocks, <span class="factor-token factor-partner">Blau</span> den anderen Faktor. Die Farben verbinden die Zahlen der Malreihen mit denselben Zahlen im Mittelquadrat.</li>
                 <li>Suche das gestrichelte Feld mit der Tauschaufgabe. Dort steht dieselbe Zahl, denn die Faktoren sind vertauscht. Bei gleichen Faktoren liegen Aufgabe und Tauschaufgabe im selben Ergebnisfeld.</li>
                 <li>Schau unter <strong>Dein Zauberquadrat</strong> auf die Summen. In einem Block ist jede Zeilen- und Spaltensumme gleich.</li>
               </ol>
@@ -121,7 +135,7 @@
               <ul class="list-unstyled d-grid gap-2 mb-3">
                 <li class="d-flex align-items-start gap-2">
                   <span class="legend-mark bg-danger rounded-1 flex-shrink-0 mt-1" aria-hidden="true"></span>
-                  <span><strong>Rot</strong> verbindet das Mittelquadrat mit den Mittelpunkten der äußeren Blöcke.</span>
+                  <span><strong>Rot</strong> verbindet die Zahlen 2 bis 9 im Mittelquadrat mit den passenden Malreihen.</span>
                 </li>
                 <li class="d-flex align-items-start gap-2">
                   <span class="legend-mark bg-primary rounded-1 flex-shrink-0 mt-1" aria-hidden="true"></span>
@@ -138,7 +152,7 @@
                 <li class="d-flex align-items-center gap-2"><span class="legend-mark is-match rounded-1 flex-shrink-0" aria-hidden="true"></span>Tauschaufgabe</li>
                 <li class="d-flex align-items-center gap-2">
                   <span class="legend-mark is-factor factor-block rounded-1 flex-shrink-0" aria-hidden="true"></span>
-                  <span id="factor-block-hinweis">Mittelzahl des gewählten Blocks</span>
+                  <span id="factor-block-hinweis">Zahl der gewählten Malreihe</span>
                 </li>
                 <li class="d-flex align-items-center gap-2">
                   <span class="legend-mark is-factor factor-partner rounded-1 flex-shrink-0" aria-hidden="true"></span>
@@ -149,7 +163,7 @@
 
             <details id="teilen-erklaerung" name="lernhilfen" class="card rounded-4 p-3">
               <summary class="fw-bold">Das Teilen mit Rest</summary>
-              <p id="division-help" class="mt-3 mb-2">Wähle ein Feld in der Maltafel und eine Zahl aus der unteren Leiste. Die Mittelzahl des gewählten Blocks ist dein Teiler.</p>
+              <p id="division-help" class="mt-3 mb-2">Wähle ein Feld in der Maltafel und eine Zahl aus der unteren Leiste. Die Zahl der gewählten Malreihe ist dein Teiler.</p>
               <div class="rounded-3 bg-info-subtle text-info-emphasis px-3 py-2 mb-3">
                 <p id="division-result" class="fw-bold mb-0" role="status"></p>
                 <p id="division-proof" class="mb-0"></p>

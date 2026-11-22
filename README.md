@@ -8,7 +8,7 @@ Interaktive HTML-Fassung eines historischen Schulwandbilds.
 
 ## Daten
 
-Beide 9×9-Anordnungen stehen in [`data.js`](assets/js/data.js). Jeder 3×3-Block enthält die Produkte seiner Mittelzahl mit 1 bis 9. Jede Zeile und Spalte im Block ergibt `15 × Mittelzahl`.
+Die drei 9×9-Anordnungen stehen in [`data.js`](assets/js/data.js). Jede Zeilen- und Spaltensumme ist `15 × Faktor der Malreihe`. Bei Lo Shu gilt das auch für beide Diagonalen.
 
 ## Vorlage
 

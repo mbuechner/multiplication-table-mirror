@@ -11,20 +11,30 @@ const einmaleinsTafel = [
   [28, 56, 21, 10, 45, 20, 21, 18, 6],
 ];
 
-const einmaleinsDaten = {
-  tafel: einmaleinsTafel,
-  // Die Variante platziert jedes Vielfache an der Position seines Faktors im Mittelquadrat.
-  tafelNachMittelquadrat: einmaleinsTafel.map((zeile, zeilenIndex) => {
-    const zeileImBlock = zeilenIndex % 3;
-    const zeileImMittelquadrat = einmaleinsTafel[3 + zeileImBlock];
-    const blockMittelzeile = einmaleinsTafel[zeilenIndex - zeileImBlock + 1];
+// Die Malreihe eines Blocks bleibt beim Wechsel der Zahlenanordnung gleich.
+const blockFaktoren = einmaleinsTafel
+  .filter((_, zeilenIndex) => zeilenIndex % 3 === 1)
+  .map((zeile) => zeile.filter((_, spaltenIndex) => spaltenIndex % 3 === 1));
+const mittelquadrat = einmaleinsTafel.slice(3, 6).map((zeile) => zeile.slice(3, 6));
 
-    return zeile.map((_, spaltenIndex) => {
-      const spalteImBlock = spaltenIndex % 3;
-      const faktor = blockMittelzeile[spaltenIndex - spalteImBlock + 1];
-      return faktor * zeileImMittelquadrat[3 + spalteImBlock];
-    });
-  }),
+function tafelNachMuster(muster) {
+  return einmaleinsTafel.map((zeile, zeilenIndex) =>
+    zeile.map((_, spaltenIndex) => {
+      const faktor = blockFaktoren[Math.floor(zeilenIndex / 3)][Math.floor(spaltenIndex / 3)];
+      return faktor * muster[zeilenIndex % 3][spaltenIndex % 3];
+    }),
+  );
+}
+
+const einmaleinsDaten = {
+  blockFaktoren,
+  tafel: einmaleinsTafel,
+  tafelNachMittelquadrat: tafelNachMuster(mittelquadrat),
+  tafelNachLoShu: tafelNachMuster([
+    [2, 9, 4],
+    [7, 5, 3],
+    [6, 1, 8],
+  ]),
   randzahlen: {
     oben: 90,
     links: [20, 60, 70],

@@ -1,9 +1,10 @@
-const { tafel, tafelNachMittelquadrat, randzahlen, einheiten } = einmaleinsDaten;
+const { tafel, tafelNachMittelquadrat, tafelNachLoShu, blockFaktoren: blockFactors, randzahlen, einheiten } = einmaleinsDaten;
 const blockSize = 3;
 const numberArrangement = document.querySelector("#zahlenanordnung");
 const arrangements = new Map([
   ["original", tafel],
   ["mittelquadrat", tafelNachMittelquadrat],
+  ["lo-shu", tafelNachLoShu],
 ]);
 const mirrorBody = document.querySelector("#mirror-table").createTBody();
 const mirrorScroll = document.querySelector("#mirror-scroll");
@@ -12,6 +13,8 @@ const equation = document.querySelector("#equation");
 const mirrorNote = document.querySelector("#mirror-note");
 const magicTable = document.querySelector("#magic-table");
 const magicCaption = document.querySelector("#magic-caption");
+const magicDiagonalDescending = document.querySelector("#magic-diagonal-descending");
+const magicDiagonalAscending = document.querySelector("#magic-diagonal-ascending");
 const magicScroll = document.querySelector("#magic-scroll");
 const magicScrollHint = document.querySelector("#magic-scroll-hint");
 
@@ -22,7 +25,6 @@ const arrowSteps = new Map([
   ["ArrowRight", [0, 1]],
 ]);
 
-const factorCenters = new Map();
 const markedFactors = new Set();
 let cells;
 // Der zuletzt gezeigte Block bleibt als Vorschau sichtbar, wenn die Auswahl endet.
@@ -54,7 +56,8 @@ function renderNumber(row, value, rowIndex, columnIndex, squares) {
   const blockColumn = Math.floor(columnIndex / blockSize);
   const square = squares[blockRow][blockColumn];
   const td = row.insertCell();
-  const isFactor = rowIndex % blockSize === 1 && columnIndex % blockSize === 1;
+  const partner = value / square.factor;
+  const isFactor = partner === 1;
   const isMiddleSquare = blockRow === 1 && blockColumn === 1;
   const isCornerSquare = blockRow !== 1 && blockColumn !== 1;
   const isRose = isMiddleSquare ? !isFactor : isFactor;
@@ -67,7 +70,6 @@ function renderNumber(row, value, rowIndex, columnIndex, squares) {
   td.classList.toggle("block-right", columnIndex === squares[blockRow].length * blockSize - 1);
 
   const button = document.createElement("button");
-  const partner = value / square.factor;
   const cell = { button, square, partner, value };
   button.type = "button";
   button.className = "btn number-button w-100 p-0 fw-bold rounded-2";
@@ -79,7 +81,6 @@ function renderNumber(row, value, rowIndex, columnIndex, squares) {
   button.addEventListener("focus", () => setTabStop(cell));
   button.addEventListener("keydown", (event) => moveFocus(event, rowIndex, columnIndex));
   td.append(button);
-  if (isFactor) factorCenters.set(square.factor, button);
   return cell;
 }
 
@@ -102,8 +103,8 @@ function findNumber(factor, partner) {
 }
 
 function markFactor(factor, role) {
-  // Der Wert 1 steht im Mittelquadrat und in der eigenen Blockmitte im selben Feld.
-  const buttons = new Set([factorCenters.get(factor), findNumber(1, factor).button]);
+  // Im Block steht der Faktor bei Faktor × 1, im Mittelquadrat bei 1 × Faktor.
+  const buttons = new Set([findNumber(factor, 1).button, findNumber(1, factor).button]);
   for (const button of buttons) {
     markedFactors.add(button);
     button.classList.add("is-factor", role);
@@ -203,6 +204,9 @@ function renderMagicSquare({ factor, values }) {
     addSumCell(columnTotals, sumValues(numbers), `Spalte ${columnIndex + 1}`);
   });
   columnTotals.insertCell().className = "border-0 bg-transparent";
+
+  magicDiagonalDescending.textContent = sumValues(values.map((row, index) => row[index]));
+  magicDiagonalAscending.textContent = sumValues(values.map((row, index) => row[values.length - 1 - index]));
   updateMagicScrollAffordance();
 }
 
@@ -217,18 +221,17 @@ function renderStrip(tableId, values, fillCell) {
 }
 
 function renderMirror(numbers) {
-  const squares = Array.from({ length: blockSize }, (_, blockRow) =>
-    Array.from({ length: blockSize }, (_, blockColumn) => {
+  const squares = blockFactors.map((factors, blockRow) =>
+    factors.map((factor, blockColumn) => {
       const firstRow = blockRow * blockSize;
       const firstColumn = blockColumn * blockSize;
       const values = numbers.slice(firstRow, firstRow + blockSize)
         .map((row) => row.slice(firstColumn, firstColumn + blockSize));
-      return { values, factor: values[1][1] };
+      return { values, factor };
     }),
   );
 
   mirrorBody.replaceChildren();
-  factorCenters.clear();
   addMarginBand(randzahlen.oben);
   cells = numbers.map((values, rowIndex) => {
     const row = mirrorBody.insertRow();
@@ -246,7 +249,7 @@ function loadArrangement() {
   const previous = currentCell;
   renderMirror(arrangements.get(numberArrangement.value));
   // Dasselbe Produkt kann mehrmals vorkommen. Das Faktorenpaar identifiziert die Aufgabe.
-  const cell = previous ? findNumber(previous.square.factor, previous.partner) : cells[1][6];
+  const cell = previous ? findNumber(previous.square.factor, previous.partner) : findNumber(4, 6);
   if (selectedCell) {
     selectNumber(cell);
   } else {
